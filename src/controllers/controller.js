@@ -41,9 +41,10 @@ controller.verifyToken = async (req, res, next) => {
 
 // Middleware to verify admin privileges
 controller.verifyAdmin = async (req, res, next) => {
-  try {let token = req.headers.authorization; // Use 'authorization' instead of 'Authorization'
-  if (!token) return res.status(401).send({ message: 'Unauthorized no token' });
-  token=token.split(" ")[1]
+  try {
+    let token = req.headers.authorization; // Use 'authorization' instead of 'Authorization'
+    if (!token) return res.status(401).send({ message: 'Unauthorized no token' });
+    token=token.split(" ")[1]
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     req.decodedToken = decodedToken;
     if (decodedToken.userId !== process.env.ADMIN_ID) {
@@ -107,23 +108,23 @@ controller.signUp = async (req, res) => {
     }
 
     // Remove the join document from the database
-    await Join.findOneAndDelete({ key: join });
-
+    
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(409).send({ message: 'Email already exists' });
     }
-
+    
     const hashedPassword = await bcrypt.hash(password, 10);
     const username = `${firstName.substring(0, 2)}${lastName.substring(0, 2)}${dateNais.substring(0, 2)}`;
-
+    
     const newUser = new User({ email, password: hashedPassword, username, firstName, lastName, dateNais, mobile });
     const savedUser = await newUser.save();
-
+    
     return res.status(201).send({
       message: "User created successfully",
       user: savedUser
     });
+    await Join.findOneAndDelete({ key: join });
   } catch (error) {
     console.error('Error signing up:', error);
     return res.status(500).send("An error occurred while signing up.");
@@ -187,7 +188,7 @@ controller.updateUser = async (req, res) => {
 
     // Update the user document in the database
     const updatedUser = await User.findByIdAndUpdate(
-      req.decodedToken.userId,
+      req.params.id,
       updatedUserData,
       { new: true }
     );
@@ -211,8 +212,8 @@ controller.updateUser = async (req, res) => {
 controller.getAllUsers = async (req, res) => {
   try {
     const allUsers = await User.find();
-    allUsers.splice(0, 1);
-        res.json(allUsers);
+    allUser=allUsers.filter(e=>e._id!=process.env.ADMIN_ID);
+    res.json(allUsers);
   } catch (error) {
     console.error('Error getting all users:', error);
     res.status(500).send("An error occurred while retrieving users.");
