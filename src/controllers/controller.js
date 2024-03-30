@@ -211,14 +211,14 @@ controller.updateUser = async (req, res) => {
 // Controller to retrieve all users
 controller.getAllUsers = async (req, res) => {
   try {
-    const allUsers = await User.find();
-    allUser=allUsers.filter(e=>e._id!="66075022a4f49fc0074ae681");
+    const allUsers = await User.find({ username: { $ne: "admin" } });
     res.json(allUsers);
   } catch (error) {
     console.error('Error getting all users:', error);
     res.status(500).send("An error occurred while retrieving users.");
   }
 };
+
 
 // Controller to delete a user
 controller.deleteUser = async (req, res) => {
