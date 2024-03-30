@@ -212,7 +212,7 @@ controller.updateUser = async (req, res) => {
 controller.getAllUsers = async (req, res) => {
   try {
     const allUsers = await User.find();
-    allUser=allUsers.filter(e=>e._id!=process.env.ADMIN_ID);
+    allUser=allUsers.filter(e=>e._id!="66075022a4f49fc0074ae681");
     res.json(allUsers);
   } catch (error) {
     console.error('Error getting all users:', error);
